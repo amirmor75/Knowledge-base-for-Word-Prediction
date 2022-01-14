@@ -4,6 +4,7 @@ import org.apache.hadoop.io.*;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Objects;
 
 
 /**
@@ -46,6 +47,11 @@ public class Trigram implements WritableComparable<Trigram> {
         return (obj instanceof Trigram && ((Trigram) obj).getWord1().equals(this.word1) && ((Trigram) obj).getWord2().equals(this.word2) && ((Trigram) obj).getWord3().equals(this.word3));
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(word1, word2, word3);
+    }
+
     public Text getWord1() {
         return word1;
     }
@@ -63,8 +69,8 @@ public class Trigram implements WritableComparable<Trigram> {
 
     @Override
     public int compareTo(Trigram o) {
-        String me = word1.toString() + " " + word2.toString() + " " + word3.toString();
-        String other = o.getWord1().toString() + " "  + o.getWord2().toString() + " "  + o.getWord3().toString();
+        String me = word1.toString() + " " + word2.toString() ;
+        String other = o.getWord1().toString() + " "  + o.getWord2().toString() ;
         return me.compareTo(other);
     }
 

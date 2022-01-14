@@ -1,14 +1,13 @@
 package jobs;
 
-        import org.apache.hadoop.io.IntWritable;
-        import org.apache.hadoop.io.LongWritable;
-        import org.apache.hadoop.io.Text;
-        import org.apache.hadoop.mapreduce.Mapper;
-        import org.apache.hadoop.mapreduce.Partitioner;
-        import org.apache.hadoop.mapreduce.Reducer;
-        import writables.DataPair;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Reducer;
 
-        import java.io.IOException;
+import java.io.IOException;
 
 
 public class Job4Zip1With2 {
@@ -36,13 +35,13 @@ public class Job4Zip1With2 {
         }
     }
 
-    public static class ReducerClass extends Reducer<Text, Text, Text, DataPair> {
+    public static class ReducerClass extends Reducer<Text, Text, Text, Text> {
         private final Text outKey = new Text();
-        private final Text outval = new Text();
+        private final Text outVal = new Text();
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             int singleWordCount = -1 ;
-            int sum = 0;
+
             for (Text value : values) {
                 String[] words = value.toString().split(" ");
                 if(words.length==1){
@@ -53,7 +52,8 @@ public class Job4Zip1With2 {
                 String[] words = value.toString().split(" ");
                 if(words.length>1){
                     outKey.set(String.format("%s %s",words[0],words[1]));
-                    context.write(key, new DataPair(sum,Integer.parseInt(words[2])));
+                    outVal.set(String.format("%d %d",singleWordCount,Integer.parseInt(words[2])));
+                    context.write(outKey,outVal);
                 }
             }
         }

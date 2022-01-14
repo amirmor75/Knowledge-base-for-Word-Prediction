@@ -1,7 +1,9 @@
 package jobs;
 
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import writables.C0;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import writables.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -11,9 +13,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import writables.DataPair;
-
 import java.io.IOException;
+
 
 public class MR {
 
@@ -81,7 +82,7 @@ public class MR {
         job2.setOutputKeyClass(Text.class);
         job2.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job2, new Path(gram2s3Url));
-        FileOutputFormat.setOutputPath(job2, new Path(workingDirBucketName + "Step2output"));
+        FileOutputFormat.setOutputPath(job2, new Path(workingDirBucketName + "step2output"));
 
         System.out.println("~Starting job 2~");
         System.out.println("Job 2 done with status: "
@@ -107,7 +108,7 @@ public class MR {
         job3.setOutputKeyClass(Text.class);
         job3.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job3, new Path(gram3s3Url));
-        FileOutputFormat.setOutputPath(job3, new Path(workingDirBucketName + "Step3output"));
+        FileOutputFormat.setOutputPath(job3, new Path(workingDirBucketName + "step3output"));
 
         System.out.println("~Starting job 3~");
         System.out.println("Job 3 done with status: "
@@ -117,12 +118,12 @@ public class MR {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        System.out.println("Building job 4...");
+        System.out.println("~configuring job 4~");
         Job job4 = Job.getInstance(conf);
         job4.setJarByClass(Job4Zip1With2.class);
 
         MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "step1output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
-        MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "Step2output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
+        MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "step2output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
         job4.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         job4.setMapOutputKeyClass(Text.class);
@@ -130,43 +131,71 @@ public class MR {
 
         job4.setReducerClass(Job4Zip1With2.ReducerClass.class);
         job4.setOutputKeyClass(Text.class);
-        job4.setOutputValueClass(DataPair.class);
+        job4.setOutputValueClass(Text.class);
 
-        FileInputFormat.addInputPath(job4, new Path(args[0] + "Step3Output"));
-        FileOutputFormat.setOutputPath(job4, new Path(args[0] + "Step4Output"));
+        FileOutputFormat.setOutputPath(job4, new Path(workingDirBucketName + "step4output"));
 
-        System.out.println("Done building!\n" +
-                "Starting job 4...");
-        System.out.println("Job 4 completed with success status: " +
-                (retStat = job4.waitForCompletion(true)) + "!");
+        System.out.println("~Starting job 4~");
+        System.out.println("Job 4 done with status: "
+                + (retStat = job4.waitForCompletion(true)));
         if (!retStat)
-            return;
+            return ;
 
-//        //--------------------------------------------------------------------------------------------------------------
-//
-//        System.out.println("Building job 5...");
-//        Job job5 = Job.getInstance(conf);
-//        job5.setJarByClass(Job5Sort.class);
-//
-//        job5.setInputFormatClass(SequenceFileInputFormat.class);
-//        job5.setOutputFormatClass(TextOutputFormat.class);
-//
-//        job5.setMapperClass(Job5Sort.CastlingMapper.class);
-//        job5.setMapOutputKeyClass(StringStringDoubleTriple.class);
-//        job5.setMapOutputValueClass(Text.class);
-//
-//        job5.setReducerClass(Job5Sort.FinisherReducer.class);
-//        job5.setOutputKeyClass(Text.class);
-//        job5.setOutputValueClass(DoubleWritable.class);
-//
-//        job5.setNumReduceTasks(1);
-//
-//        FileInputFormat.addInputPath(job5, new Path(args[0] + "Step4Output"));
-//        FileOutputFormat.setOutputPath(job5, new Path(args[0] + "FinalOutput"));
-//
-//        System.out.println("Done building!\n" +
-//                "Starting job 5...");
-//        System.out.println("Job 5 completed with success status: " + job5.waitForCompletion(true) + "!\n" +
-//                "Exiting...");
+        //--------------------------------------------------------------------------------------------------------------
+        System.out.println("~configuring job 5~");
+        Job job5 = Job.getInstance(conf);
+        job5.setJarByClass(Job5Zip3With4.class);
+
+        MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step3output"), SequenceFileInputFormat.class, Job5Zip3With4.MapperClass.class);
+        MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step4output"), SequenceFileInputFormat.class, Job5Zip3With4.MapperClass.class);
+        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
+
+        job5.setMapOutputKeyClass(Text.class);
+        job5.setMapOutputValueClass(Text.class);
+
+        job5.setReducerClass(Job5Zip3With4.ReducerClass.class);
+        job5.setOutputKeyClass(Trigram.class);
+        job5.setOutputValueClass(Pair3Numbers.class);
+
+        FileOutputFormat.setOutputPath(job5, new Path(workingDirBucketName+ "step5output"));
+
+        System.out.println("~Starting job 5~");
+        System.out.println("Job 5 done with status: "
+                + (retStat = job5.waitForCompletion(true)));
+        if (!retStat)
+            return ;
+        //--------------------------------------------------------------------------------------------------------------
+        System.out.println("Building job 6...");
+        Job job6 = Job.getInstance(conf);
+        job6.setJarByClass(Job6CalcProb.class);
+        job6.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job6.setReducerClass(Job6CalcProb.ReducerClass.class);
+        job6.setOutputKeyClass(TrigramWithProb.class);
+        job6.setOutputValueClass(Text.class);
+        FileInputFormat.addInputPath(job6, new Path("step5output"));
+        FileOutputFormat.setOutputPath(job6, new Path(workingDirBucketName + "step6output"));
+
+        System.out.println("~Starting job 6~");
+        System.out.println("Job 6 done with status: "
+                + (retStat = job6.waitForCompletion(true)));
+        if (!retStat)
+            return ;
+        //--------------------------------------------------------------------------------------------------------------
+        System.out.println("Building job 7...");
+        Job job7 = Job.getInstance(conf);
+        job7.setJarByClass(Job7Sort.class);
+        job7.setInputFormatClass(SequenceFileInputFormat.class);
+        job7.setOutputFormatClass(TextOutputFormat.class);
+        job7.setReducerClass(Job7Sort.ReducerClass.class);
+        job7.setOutputKeyClass(Text.class);
+        job7.setOutputValueClass(DoubleWritable.class);
+        FileInputFormat.addInputPath(job7, new Path("step6output"));
+        FileOutputFormat.setOutputPath(job7, new Path(workingDirBucketName + "finalOutput"));
+
+        System.out.println("~Starting job 7~");
+        System.out.println("Job 7 done with status: "
+                + (retStat = job7.waitForCompletion(true)));
+        System.out.println("finished!");
+
     }
 }
