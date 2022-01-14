@@ -1,5 +1,7 @@
 # Compiled class file
 *.class
+.idea
+src/main/java/META-INF
 
 # Log file
 *.log
