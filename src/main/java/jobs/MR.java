@@ -1,5 +1,6 @@
 package jobs;
 
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import writables.C0;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -10,6 +11,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import writables.DataPair;
 
 import java.io.IOException;
 
@@ -83,7 +85,7 @@ public class MR {
 
         System.out.println("~Starting job 2~");
         System.out.println("Job 2 done with status: "
-                + (retStat = job1.waitForCompletion(true)));
+                + (retStat = job2.waitForCompletion(true)));
         if (!retStat)
             return ;
 
@@ -109,35 +111,37 @@ public class MR {
 
         System.out.println("~Starting job 3~");
         System.out.println("Job 3 done with status: "
-                + (retStat = job1.waitForCompletion(true)));
+                + (retStat = job3.waitForCompletion(true)));
         if (!retStat)
             return ;
 
         //--------------------------------------------------------------------------------------------------------------
-//
-//        System.out.println("Building job 4...");
-//        Job job4 = Job.getInstance(conf);
-//        job4.setJarByClass(Job4CalcProb.class);
-//
-//        job4.setInputFormatClass(SequenceFileInputFormat.class);
-//        job4.setOutputFormatClass(SequenceFileOutputFormat.class);
-//
-//        job4.setMapOutputKeyClass(Text.class);
-//        job4.setMapOutputValueClass(LongLongPair.class);
-//
-//        job4.setReducerClass(Job4CalcProb.CalcProbReducer.class);
-//        job4.setOutputKeyClass(Text.class);
-//        job4.setOutputValueClass(DoubleWritable.class);
-//
-//        FileInputFormat.addInputPath(job4, new Path(args[0] + "Step3Output"));
-//        FileOutputFormat.setOutputPath(job4, new Path(args[0] + "Step4Output"));
-//
-//        System.out.println("Done building!\n" +
-//                "Starting job 4...");
-//        System.out.println("Job 4 completed with success status: " + (jobStatus = job4.waitForCompletion(true)) + "!");
-//        if (!jobStatus)
-//            return;
-//
+
+        System.out.println("Building job 4...");
+        Job job4 = Job.getInstance(conf);
+        job4.setJarByClass(Job4Zip1With2.class);
+
+        MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "step1output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
+        MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "Step2output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
+        job4.setOutputFormatClass(SequenceFileOutputFormat.class);
+
+        job4.setMapOutputKeyClass(Text.class);
+        job4.setMapOutputValueClass(Text.class);
+
+        job4.setReducerClass(Job4Zip1With2.ReducerClass.class);
+        job4.setOutputKeyClass(Text.class);
+        job4.setOutputValueClass(DataPair.class);
+
+        FileInputFormat.addInputPath(job4, new Path(args[0] + "Step3Output"));
+        FileOutputFormat.setOutputPath(job4, new Path(args[0] + "Step4Output"));
+
+        System.out.println("Done building!\n" +
+                "Starting job 4...");
+        System.out.println("Job 4 completed with success status: " +
+                (retStat = job4.waitForCompletion(true)) + "!");
+        if (!retStat)
+            return;
+
 //        //--------------------------------------------------------------------------------------------------------------
 //
 //        System.out.println("Building job 5...");

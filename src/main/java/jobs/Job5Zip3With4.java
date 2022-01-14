@@ -1,38 +1,36 @@
 package jobs;
 
-        import org.apache.hadoop.io.IntWritable;
-        import org.apache.hadoop.io.LongWritable;
-        import org.apache.hadoop.io.Text;
-        import org.apache.hadoop.mapreduce.Mapper;
-        import org.apache.hadoop.mapreduce.Partitioner;
-        import org.apache.hadoop.mapreduce.Reducer;
-        import writables.DataPair;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Reducer;
+import writables.DataPair;
 
-        import java.io.IOException;
+import java.io.IOException;
 
 
-public class Job4Zip1With2 {
+public class Job5Zip3With4 {
 
-    public static class MapperClass extends Mapper<LongWritable, Text, Text, Text> {
+    public static class MapperClass extends Mapper<Text, Text, Text, Text> {
 
         private final Text outKey = new Text();
         private final Text outval = new Text();
 
         @Override
-        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-            String[] strings = value.toString().split("\t");
-            String[] words = strings[0].split(" ");
-
-
-            if(words.length > 1){ // the key a 2 word pair
-                outKey.set(String.format("%s",words[1]));
-                outval.set(String.format("%s %s %d",words[0],words[1],Integer.parseInt(strings[1])));
+        public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
+            String[] words = key.toString().split(" ");
+            String[] values = value.toString().split(" ");
+            if(words.length > 2){ // the key is a Trigram
+                outKey.set(String.format("%s %s",words[1],words[2]));
+                outval.set(String.format("%s %s %s %d",words[0],words[1], words[3],Integer.parseInt(values[1])));
             }
-            else{ // the key is one word
-                outKey.set(String.format("%s",words[0]));
-                outval.set(String.valueOf(Integer.parseInt(strings[1])));
+            else{ // the key is a pair of words
+                outKey.set(String.format("%s %s",words[1],words[2]));
+                outval.set(String.format("%d", Integer.parseInt(values[1])));
             }
-            context.write(outKey , outval);
+            context.write(outKey, outval);
         }
     }
 
@@ -44,13 +42,13 @@ public class Job4Zip1With2 {
             int singleWordCount = -1 ;
             int sum = 0;
             for (Text value : values) {
-                String[] words = value.toString().split(" ");
+                String[] words = value.toString().split("\t");
                 if(words.length==1){
                     singleWordCount= Integer.parseInt(words[0]);
                 }
             }
             for (Text value : values) {
-                String[] words = value.toString().split(" ");
+                String[] words = value.toString().split("\t");
                 if(words.length>1){
                     outKey.set(String.format("%s %s",words[0],words[1]));
                     context.write(key, new DataPair(sum,Integer.parseInt(words[2])));
@@ -67,6 +65,7 @@ public class Job4Zip1With2 {
     }
 
 }
+
 
 
 

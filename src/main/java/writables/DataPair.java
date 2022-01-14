@@ -13,39 +13,35 @@ import java.io.IOException;
  */
 public class DataPair implements Writable {
 
-    private final IntWritable first;
-    private final IntWritable second;
+    private final IntWritable w2Count;
+    private final IntWritable pairCount;
 
-    /**
-     * Constructor
-     * @param first first (as int)
-     * @param second second (as int)
-     */
-    public DataPair(int first, int second) {
-        this.first = new IntWritable(first);
-        this.second = new IntWritable(second);
+
+    public DataPair(int w2Count, int pairCount) {
+        this.w2Count = new IntWritable(w2Count);
+        this.pairCount = new IntWritable(pairCount);
     }
 
     /**
      * Empty constructor
      */
     public DataPair(){
-        this.first = new IntWritable(0);
-        this.second = new IntWritable(0);
+        this.w2Count = new IntWritable(0);
+        this.pairCount = new IntWritable(0);
     }
 
     /**
      * @return first element in pair
      */
-    public IntWritable getFirst() {
-        return first;
+    public IntWritable getW2Count() {
+        return w2Count;
     }
 
     /**
      * @return second element in pair
      */
-    public IntWritable getSecond() {
-        return second;
+    public IntWritable getPairCount() {
+        return pairCount;
     }
 
     /**
@@ -54,8 +50,8 @@ public class DataPair implements Writable {
      * @throws IOException if dataOutput doesn't exist
      */
     public void write(DataOutput dataOutput) throws IOException {
-        first.write(dataOutput);
-        second.write(dataOutput);
+        w2Count.write(dataOutput);
+        pairCount.write(dataOutput);
     }
 
     /**
@@ -64,8 +60,8 @@ public class DataPair implements Writable {
      * @throws IOException if dataInput doesn't exist
      */
     public void readFields(DataInput dataInput) throws IOException {
-        first.readFields(dataInput);
-        second.readFields(dataInput);
+        w2Count.readFields(dataInput);
+        pairCount.readFields(dataInput);
     }
 
     /**
@@ -75,6 +71,6 @@ public class DataPair implements Writable {
      */
     @Override
     public String toString() {
-        return first.toString() + " " + second.toString();
+        return w2Count.toString() + " " + pairCount.toString();
     }
 }
