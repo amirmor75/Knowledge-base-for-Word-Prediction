@@ -18,7 +18,6 @@ import java.io.IOException;
 
 public class MR {
 
-
     public static void main(String... args) throws IOException, ClassNotFoundException, InterruptedException
     {
         String workingDirBucketName = args[0];
@@ -77,6 +76,8 @@ public class MR {
         if (isWithCombiners)
             job2.setCombinerClass(Job2Count2Gram.ReducerClass.class);
         job2.setReducerClass(Job2Count2Gram.ReducerClass.class);
+        job2.setPartitionerClass(Job2Count2Gram.PartitionerClass.class);
+
         job2.setMapOutputKeyClass(Text.class);
         job2.setMapOutputValueClass(IntWritable.class);
         job2.setOutputKeyClass(Text.class);
@@ -107,6 +108,8 @@ public class MR {
         job3.setMapOutputValueClass(IntWritable.class);
         job3.setOutputKeyClass(Text.class);
         job3.setOutputValueClass(IntWritable.class);
+        job3.setPartitionerClass(Job3Count3Gram.PartitionerClass.class);
+
         FileInputFormat.addInputPath(job3, new Path(gram3s3Url));
         FileOutputFormat.setOutputPath(job3, new Path(workingDirBucketName + "step3output"));
 
@@ -119,21 +122,25 @@ public class MR {
         //--------------------------------------------------------------------------------------------------------------
 
         System.out.println("~configuring job 4~");
-        Job job4 = Job.getInstance(conf);
+        Job job4 = Job.getInstance(conf, "Job4 Zip out1 With out2");
         job4.setJarByClass(Job4Zip1With2.class);
 
-        MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "step1output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
-        MultipleInputs.addInputPath(job3, new Path(workingDirBucketName + "step2output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
-        job4.setOutputFormatClass(SequenceFileOutputFormat.class);
+
+        job4.setMapperClass(Job4Zip1With2.MapperClass.class);
 
         job4.setMapOutputKeyClass(Text.class);
         job4.setMapOutputValueClass(Text.class);
 
         job4.setReducerClass(Job4Zip1With2.ReducerClass.class);
+        job4.setPartitionerClass(Job4Zip1With2.PartitionerClass.class);
+
         job4.setOutputKeyClass(Text.class);
         job4.setOutputValueClass(Text.class);
 
+        job4.setOutputFormatClass(SequenceFileOutputFormat.class);
         FileOutputFormat.setOutputPath(job4, new Path(workingDirBucketName + "step4output"));
+        MultipleInputs.addInputPath(job4, new Path(workingDirBucketName + "step1output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
+        MultipleInputs.addInputPath(job4, new Path(workingDirBucketName + "step2output"), SequenceFileInputFormat.class, Job4Zip1With2.MapperClass.class);
 
         System.out.println("~Starting job 4~");
         System.out.println("Job 4 done with status: "
@@ -146,17 +153,21 @@ public class MR {
         Job job5 = Job.getInstance(conf);
         job5.setJarByClass(Job5Zip3With4.class);
 
-        MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step3output"), SequenceFileInputFormat.class, Job5Zip3With4.MapperClass.class);
-        MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step4output"), SequenceFileInputFormat.class, Job5Zip3With4.MapperClass.class);
-        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
+
+        job5.setMapperClass(Job5Zip3With4.MapperClass.class);
 
         job5.setMapOutputKeyClass(Text.class);
         job5.setMapOutputValueClass(Text.class);
 
         job5.setReducerClass(Job5Zip3With4.ReducerClass.class);
+        job5.setPartitionerClass(Job5Zip3With4.PartitionerClass.class);
+
         job5.setOutputKeyClass(Trigram.class);
         job5.setOutputValueClass(Pair3Numbers.class);
 
+        MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step3output"), SequenceFileInputFormat.class, Job5Zip3With4.MapperClass.class);
+        MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step4output"), SequenceFileInputFormat.class, Job5Zip3With4.MapperClass.class);
+        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
         FileOutputFormat.setOutputPath(job5, new Path(workingDirBucketName+ "step5output"));
 
         System.out.println("~Starting job 5~");
@@ -168,11 +179,14 @@ public class MR {
         System.out.println("Building job 6...");
         Job job6 = Job.getInstance(conf);
         job6.setJarByClass(Job6CalcProb.class);
-        job6.setOutputFormatClass(SequenceFileOutputFormat.class);
+
         job6.setReducerClass(Job6CalcProb.ReducerClass.class);
+        job6.setPartitionerClass(Job6CalcProb.PartitionerClass.class);
         job6.setOutputKeyClass(TrigramWithProb.class);
         job6.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job6, new Path("step5output"));
+
+        job6.setOutputFormatClass(SequenceFileOutputFormat.class);
+        FileInputFormat.addInputPath(job6, new Path(workingDirBucketName+"step5output"));
         FileOutputFormat.setOutputPath(job6, new Path(workingDirBucketName + "step6output"));
 
         System.out.println("~Starting job 6~");
@@ -187,6 +201,8 @@ public class MR {
         job7.setInputFormatClass(SequenceFileInputFormat.class);
         job7.setOutputFormatClass(TextOutputFormat.class);
         job7.setReducerClass(Job7Sort.ReducerClass.class);
+        job6.setPartitionerClass(Job7Sort.PartitionerClass.class);
+
         job7.setOutputKeyClass(Text.class);
         job7.setOutputValueClass(DoubleWritable.class);
         FileInputFormat.addInputPath(job7, new Path("step6output"));

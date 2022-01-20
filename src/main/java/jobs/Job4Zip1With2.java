@@ -11,25 +11,25 @@ import java.io.IOException;
 
 
 public class Job4Zip1With2 {
+    // change LongWritable to text
 
-    public static class MapperClass extends Mapper<LongWritable, Text, Text, Text> {
+    public static class MapperClass extends Mapper<Text, IntWritable, Text, Text> {
 
         private final Text outKey = new Text();
         private final Text outval = new Text();
 
         @Override
-        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-            String[] strings = value.toString().split("\t");
-            String[] words = strings[0].split(" ");
+        public void map(Text key, IntWritable value, Context context) throws IOException, InterruptedException {
+            String[] words = key.toString().split(" ");
 
 
             if(words.length > 1){ // the key a 2 word pair
                 outKey.set(String.format("%s",words[1]));
-                outval.set(String.format("%s %s %d",words[0],words[1],Integer.parseInt(strings[1])));
+                outval.set(String.format("%s %s %d",words[0],words[1],value.get()));
             }
             else{ // the key is one word
                 outKey.set(String.format("%s",words[0]));
-                outval.set(String.valueOf(Integer.parseInt(strings[1])));
+                outval.set(String.valueOf(value.get()));
             }
             context.write(outKey , outval);
         }

@@ -22,7 +22,7 @@ public class Job3Count3Gram {
             String[] words = strings[0].split(" ");
             if (words.length == 3) {
                 count = new IntWritable(Integer.parseInt(strings[2]));
-                outKey.set(String.format("%s %s %s", words[0], words[1], words[3]));
+                outKey.set(String.format("%s %s %s", words[0], words[1], words[2]));
                 context.write(outKey, count);
             }
         }

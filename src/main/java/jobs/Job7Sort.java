@@ -2,6 +2,7 @@ package jobs;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import writables.TrigramWithProb;
 
@@ -18,6 +19,12 @@ public class Job7Sort {
             context.write(trigram,prob);
         }
 
+    }
+    public static class PartitionerClass extends Partitioner<TrigramWithProb, Text> {
+        @Override
+        public int getPartition(TrigramWithProb key, Text value, int numPartitions) {
+            return key.hashCode() % numPartitions;
+        }
     }
 
 }
