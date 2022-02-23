@@ -16,14 +16,27 @@ public class Job3Count3Gram {
         private static IntWritable count;
         private final Text outKey = new Text();
 
+        private boolean isAlphabeticSentence(String str){
+            for (int i = 0; i < str.length() ; i++) {
+                char curr = str.charAt(i);
+                if (curr<'א' || curr>'ת'){
+                    if(curr != ' ')
+                        return false;
+                }
+            }
+            return true;
+        }
+
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] strings = value.toString().split("\t");
             String[] words = strings[0].split(" ");
             if (words.length == 3) {
                 count = new IntWritable(Integer.parseInt(strings[2]));
-                outKey.set(String.format("%s %s %s", words[0], words[1], words[2]));
-                context.write(outKey, count);
+                String w1w2w3 = String.format("%s %s %s", words[0], words[1], words[2]);
+                outKey.set(w1w2w3);
+                if (isAlphabeticSentence(w1w2w3))
+                    context.write(outKey, count);
             }
         }
     }
@@ -42,7 +55,7 @@ public class Job3Count3Gram {
     public static class PartitionerClass extends Partitioner<Text, IntWritable> {
         @Override
         public int getPartition(Text key, IntWritable value, int numPartitions) {
-            return key.hashCode() % numPartitions;
+            return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }
 

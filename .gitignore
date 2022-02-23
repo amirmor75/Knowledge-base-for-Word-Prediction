@@ -2,7 +2,7 @@
 *.class
 .idea
 src/main/java/META-INF
-
+/target
 # Log file
 *.log
 
