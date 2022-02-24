@@ -1,6 +1,5 @@
 package jobs;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -10,48 +9,51 @@ import java.io.IOException;
 
 
 public class Job4Zip1With2 {
-    // change LongWritable to text
-    public static class Mapper1Gram extends Mapper<Text, IntWritable, Text, Text> {
+    public static class Mapper1Gram extends Mapper<Text, Text, Text, Text> {
 
         private final Text outKey = new Text();
-        private final Text outval = new Text();
-        private boolean debug =true;
+        private final Text outVal = new Text();
+
         /**
-         * @param key     ⟨w⟩
-         * @param value   ⟨sum⟩
-         * @param context ⟨⟩
+         * @param key     w or [w<sub>1</sub>,w<sub>2</sub>]
+         * @param value   sum of word or pair
+         * @param context we write [⟨w<sub>1</sub>⟩,⟨optional(w<sub>1</sub>,w<sub>2</sub>),sum⟩]
          */
         @Override
-        public void map(Text key, IntWritable value, Context context) throws IOException, InterruptedException {
+        public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             String[] words = key.toString().split(" ");
-            if (debug)
-            {
-                System.out.println("my first key: "+ key);
-                debug=false;
-            }
 
             if(words.length == 2){ // the key is a 2 word pair
                 outKey.set(String.format("%s",words[1]));
-                outval.set(String.format("%s %s %d",words[0],words[1],value.get()));
+                outVal.set(String.format("%s %s %d",words[0],words[1],Integer.parseInt(value.toString())));
             }
             else if(words.length == 1){ // the key is one word
                 outKey.set(String.format("%s",words[0]));
-                outval.set(String.valueOf(value.get()));
+                outVal.set(String.valueOf(Integer.parseInt(value.toString())));
             } else {
                 System.out.println("job4 mapper got bad word as input: "+ key);
-                return;
+                key.set(key+"אאא ");
+                context.write(key , value);
             }
-            context.write(outKey , outval);
+            context.write(outKey , outVal);
         }
     }
 
     public static class ReducerClass extends Reducer<Text, Text, Text, Text> {
         private final Text outKey = new Text();
         private final Text outVal = new Text();
+
+        @Override
+        protected void setup(Reducer<Text, Text, Text, Text>.Context context) throws IOException, InterruptedException {
+                outKey.set("כלום");
+                outVal.set("-1");
+
+        }
+
         /**
-         * @param key     ⟨w<sub>1</sub>,optional(w<sub>2</sub>)⟩
-         * @param values   ⟨sum⟩
-         * @param context ⟨⟩
+         * @param key     ⟨w<sub>1</sub>⟩
+         * @param values   ⟨optional(w<sub>1</sub>,w<sub>2</sub>),sum⟩
+         * @param context we write the ( [w<sub>1</sub> , w<sub>2</sub>] , [w1<sub>count</sub>,w1w2<sub>count</sub>]) pair
          */
 
         @Override
@@ -66,10 +68,15 @@ public class Job4Zip1With2 {
             }
             for (Text value : values) {
                 String[] words = value.toString().split(" ");
-                if(words.length>1){
+                if(words.length==3)
+                {
                     outKey.set(String.format("%s %s",words[0],words[1]));
                     outVal.set(String.format("%d %d",singleWordCount,Integer.parseInt(words[2])));
                     context.write(outKey,outVal);
+                }
+                else
+                {
+                    context.write(key,value);
                 }
             }
         }
@@ -78,10 +85,9 @@ public class Job4Zip1With2 {
     public static class PartitionerClass extends Partitioner<Text, Text> {
         @Override
         public int getPartition(Text key, Text value, int numPartitions) {
-            return key.hashCode() % numPartitions;
+            return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }
-
 }
 
 

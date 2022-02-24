@@ -55,7 +55,7 @@ public class Job6CalcProb {
     public static class PartitionerClass extends Partitioner<Trigram, Pair3Numbers> {
         @Override
         public int getPartition(Trigram key, Pair3Numbers value, int numPartitions) {
-            return key.hashCode() % numPartitions;
+            return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }
 

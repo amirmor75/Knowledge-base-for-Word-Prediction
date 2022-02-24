@@ -17,7 +17,13 @@ public class Job5Zip3With4 {
 
         private final Text outKey = new Text();
         private final Text outval = new Text();
-
+        /**
+         * @param key     [w<sub>1</sub>,w<sub>2</sub>,w<sub>3</sub>] /or/ [w<sub>1</sub>,w<sub>2</sub>]
+         * @param value   [sum<sub>w1w2w3</sub>] /or/ [sum<sub>w1</sub>,sum<sub>w1w2</sub>]
+         * @param context write ([w<sub>1</sub> , w<sub>2</sub>],[w<sub>1</sub>,w<sub>2</sub>,w<sub>3</sub>,sum<sub>w1w2w3</sub>]),
+         *              ([w<sub>2</sub> , w<sub>3</sub>],[w<sub>1</sub>,w<sub>2</sub>,w<sub>3</sub>,sum<sub>w1w2w3</sub>])
+         *                   <br>/or/ ([w<sub>1</sub>,w<sub>2</sub>],[sum<sub>w1</sub>,sum<sub>w1w2</sub>])
+         */
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             String[] words = key.toString().split(" ");
@@ -39,11 +45,16 @@ public class Job5Zip3With4 {
     }
 
     public static class ReducerClass extends Reducer<Text, Text, Trigram, Pair3Numbers> {
-
+        /**
+         * @param key     [w<sub>1/2</sub>,w<sub>2/3</sub>]
+         * @param values   [w<sub>1</sub>,w<sub>2</sub>,w<sub>3</sub>,sum<sub>w1w2w3</sub>] or [sum<sub>w1</sub>,sum<sub>w1w2</sub>] or [sum<sub>w2</sub>,sum<sub>w2w3</sub>]
+         * @param context write ( [w<sub>1</sub> , w<sub>2</sub>, w<sub>3</sub>] , [w<sub>1</sub>,w<sub>2</sub>,sum<sub>w1</sub>,sum<sub>w1w2</sub>, sum<sub>w1w2w3</sub>])
+         *  <br>or ( [w<sub>1</sub> , w<sub>2</sub>, w<sub>3</sub>] , [w<sub>2</sub>,w<sub>3</sub>,sum<sub>w2</sub>,sum<sub>w2w3</sub>, sum<sub>w1w2w3</sub>])
+         */
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             Trigram outKey;
-            Pair3Numbers outVal ;
+            Pair3Numbers outVal;
             int pairCount = -1;
             int singleWordCount = -1;
             for (Text value : values) {
@@ -65,10 +76,10 @@ public class Job5Zip3With4 {
         }
     }
 
-    public static class PartitionerClass extends Partitioner<Text, IntWritable> {
+    public static class PartitionerClass extends Partitioner<Text, Text> {
         @Override
-        public int getPartition(Text key, IntWritable value, int numPartitions) {
-            return key.hashCode() % numPartitions;
+        public int getPartition(Text key, Text value, int numPartitions) {
+            return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }
 

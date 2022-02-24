@@ -13,7 +13,6 @@ import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
@@ -135,7 +134,9 @@ public class MR {
 
         job4.setMapOutputKeyClass(Text.class);
         job4.setMapOutputValueClass(Text.class);
-
+        if (isWithCombiners) {
+            //nothing to do here for now
+        }
         job4.setReducerClass(Job4Zip1With2.ReducerClass.class);
         job4.setPartitionerClass(Job4Zip1With2.PartitionerClass.class);
 
@@ -172,7 +173,7 @@ public class MR {
 
         MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step3output"), KeyValueTextInputFormat.class);
         MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step4output"), KeyValueTextInputFormat.class);
-        job5.setOutputFormatClass(TextOutputFormat.class);
+        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
         FileOutputFormat.setOutputPath(job5, new Path(workingDirBucketName+ "step5output"));
 
         System.out.println("~Starting job 5~");
@@ -190,7 +191,7 @@ public class MR {
         job6.setOutputKeyClass(TrigramWithProb.class);
         job6.setOutputValueClass(Text.class);
 
-        job6.setInputFormatClass(KeyValueTextInputFormat.class);
+        job6.setInputFormatClass(SequenceFileInputFormat.class);
         job6.setOutputFormatClass(TextOutputFormat.class);
         FileInputFormat.addInputPath(job6, new Path(workingDirBucketName+"step5output"));
         FileOutputFormat.setOutputPath(job6, new Path(workingDirBucketName + "step6output"));
