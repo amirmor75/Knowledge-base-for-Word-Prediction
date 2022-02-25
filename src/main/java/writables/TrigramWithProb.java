@@ -32,6 +32,12 @@ public class TrigramWithProb implements WritableComparable<TrigramWithProb> {
         this.word3 = new Text(s2);
         this.prob = new DoubleWritable(prob);
     }
+    public TrigramWithProb(Text s, Text s1, Text s2, double prob) {
+        this.word1 = new Text(s);
+        this.word2 = new Text(s1);
+        this.word3 = new Text(s2);
+        this.prob = new DoubleWritable(prob);
+    }
 
     /**
      * Empty constructor

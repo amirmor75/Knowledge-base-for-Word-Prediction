@@ -3,9 +3,6 @@ package jobs;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-import writables.Pair3Numbers;
-import writables.Trigram;
-import writables.TrigramWithProb;
 
 import java.io.IOException;
 
@@ -13,7 +10,7 @@ public class Job6CalcProb {
 
 
 
-    public static class ReducerClass extends Reducer<Trigram, Pair3Numbers, TrigramWithProb, Text> {
+    public static class ReducerClass extends Reducer<Text, Text, Text, Text> {
         private long C0;
         @Override
         protected void setup(Context context)
@@ -28,33 +25,42 @@ public class Job6CalcProb {
 
 
         @Override
-        public void reduce(Trigram key, Iterable<Pair3Numbers> values, Context context) throws IOException, InterruptedException {
-            TrigramWithProb outKey;
-            Text outVal ;
+        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            Text outKey ;
+            Text outVal;
             int N1=-1,N2=-1,N3=-1,C1=-1,C2=-1 ;
+            String[] keyWords = key.toString().split(" ");
+            String triWord1 = keyWords[0],
+                    triWord2 = keyWords[1];
+            for (Text value : values) {
+                String[] valSplit = value.toString().split(" ");
+                String word1 = valSplit[0];
 
-            for (Pair3Numbers value : values) {
-                if(value.getWord1().toString().equals(key.getWord1().toString())){
-                    C2 = value.getPairCount().get();
-                    C1 = value.getW1Count().get();
-                    N3 = value.getTrigramCount().get();
+                int w1Count=Integer.parseInt(valSplit[2]),
+                        pairCount=Integer.parseInt(valSplit[3]),
+                        trigramCount= Integer.parseInt(valSplit[4])
+                ;
+                if(word1.equals(triWord1)){
+                    C2 = pairCount;
+                    C1 = w1Count;
+                    N3 = trigramCount;
                 }
-                if(value.getWord1().toString().equals(key.getWord2().toString())){
-                    N1 = value.getW1Count().get();
-                    N2 = value.getPairCount().get();
+                if(word1.equals(triWord2)){
+                    N1 = w1Count;
+                    N2 = pairCount;
                 }
             }
             double prob = calcProb(N1,N2,N3,C0,C1,C2);
-            outKey = new TrigramWithProb(key.getWord1().toString(),key.getWord2().toString(),key.getWord3().toString(),prob);
+            outKey = new Text(String.format("%s %s %s %f",keyWords[0],keyWords[1],keyWords[2],prob));
             outVal = new Text("-");
             context.write(outKey,outVal);
         }
 
     }
 
-    public static class PartitionerClass extends Partitioner<Trigram, Pair3Numbers> {
+    public static class PartitionerClass extends Partitioner<Text, Text> {
         @Override
-        public int getPartition(Trigram key, Pair3Numbers value, int numPartitions) {
+        public int getPartition(Text key, Text value, int numPartitions) {
             return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }

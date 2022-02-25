@@ -32,7 +32,7 @@ public class MR {
         String gram2s3Url="s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/2gram/data";
         String gram3s3Url="s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/3gram/data";
 
-
+/*
         //-------------------------------------------------------------------------------------
         System.out.println("~configuring job 1~");
 
@@ -124,7 +124,7 @@ public class MR {
             return ;
 
         //--------------------------------------------------------------------------------------------------------------
-
+    */
         System.out.println("~configuring job 4~");
         Job job4 = Job.getInstance(conf, "Job4 Zip out1 With out2");
         job4.setJarByClass(Job4Zip1With2.class);
@@ -168,12 +168,12 @@ public class MR {
         job5.setReducerClass(Job5Zip3With4.ReducerClass.class);
         job5.setPartitionerClass(Job5Zip3With4.PartitionerClass.class);
 
-        job5.setOutputKeyClass(Trigram.class);
-        job5.setOutputValueClass(Pair3Numbers.class);
+        job5.setOutputKeyClass(Text.class);
+        job5.setOutputValueClass(Text.class);
 
         MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step3output"), KeyValueTextInputFormat.class);
         MultipleInputs.addInputPath(job5, new Path(workingDirBucketName + "step4output"), KeyValueTextInputFormat.class);
-        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job5.setOutputFormatClass(TextOutputFormat.class);
         FileOutputFormat.setOutputPath(job5, new Path(workingDirBucketName+ "step5output"));
 
         System.out.println("~Starting job 5~");
@@ -188,10 +188,10 @@ public class MR {
 
         job6.setReducerClass(Job6CalcProb.ReducerClass.class);
         job6.setPartitionerClass(Job6CalcProb.PartitionerClass.class);
-        job6.setOutputKeyClass(TrigramWithProb.class);
+        job6.setOutputKeyClass(Text.class);
         job6.setOutputValueClass(Text.class);
 
-        job6.setInputFormatClass(SequenceFileInputFormat.class);
+        job6.setInputFormatClass(KeyValueTextInputFormat.class);
         job6.setOutputFormatClass(TextOutputFormat.class);
         FileInputFormat.addInputPath(job6, new Path(workingDirBucketName+"step5output"));
         FileOutputFormat.setOutputPath(job6, new Path(workingDirBucketName + "step6output"));
@@ -205,6 +205,7 @@ public class MR {
         System.out.println("Building job 7...");
         Job job7 = Job.getInstance(conf);
         job7.setJarByClass(Job7Sort.class);
+        job7.setMapperClass(Job7Sort.MapperClass.class);
         job7.setInputFormatClass(KeyValueTextInputFormat.class);
         job7.setOutputFormatClass(TextOutputFormat.class);
         job7.setReducerClass(Job7Sort.ReducerClass.class);
@@ -213,11 +214,11 @@ public class MR {
         job7.setOutputKeyClass(Text.class);
         job7.setOutputValueClass(DoubleWritable.class);
         FileInputFormat.addInputPath(job7, new Path("step6output"));
-        FileOutputFormat.setOutputPath(job7, new Path(workingDirBucketName + "finalOutput"));
+        FileOutputFormat.setOutputPath(job7, new Path(workingDirBucketName + "finaloutput"));
 
         System.out.println("~Starting job 7~");
         System.out.println("Job 7 done with status: "
-                + (retStat = job7.waitForCompletion(true)));
+                + (job7.waitForCompletion(true)));
         System.out.println("finished!");
 
     }
