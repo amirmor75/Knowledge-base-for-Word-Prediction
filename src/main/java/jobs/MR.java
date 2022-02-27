@@ -14,7 +14,6 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 
 
@@ -212,9 +211,9 @@ public class MR {
         job7.setPartitionerClass(Job7Sort.PartitionerClass.class);
 
         job7.setOutputKeyClass(Text.class);
-        job7.setOutputValueClass(DoubleWritable.class);
+        job7.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job7, new Path("step6output"));
-        FileOutputFormat.setOutputPath(job7, new Path(workingDirBucketName + "finaloutput"));
+        FileOutputFormat.setOutputPath(job7, new Path(workingDirBucketName + "finalOutput"));
 
         System.out.println("~Starting job 7~");
         System.out.println("Job 7 done with status: "

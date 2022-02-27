@@ -142,4 +142,7 @@ public class TrigramWithProb implements WritableComparable<TrigramWithProb> {
     public String toString() {
         return word1.toString() + " " + word2.toString() + " " + word3.toString() + " " + prob ;
     }
+    public String toStringNoProb() {
+        return word1.toString() + " " + word2.toString() + " " + word3.toString()  ;
+    }
 }

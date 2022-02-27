@@ -18,11 +18,12 @@ public class Job6CalcProb {
             C0 = context.getConfiguration().getLong("C0", -1);
         }
         public double calcProb(double N1,double N2,double N3,double C0, double C1, double C2 ) {
+            if (N1==-1 | N2==-1 | N3==-1 | C0==-1 | C1==-1 | C2==-1 )
+                return -1.0;
             double k2 = (java.lang.Math.log(N2 + 1) + 1) / (java.lang.Math.log(N2 + 1) + 2);
             double k3 = (java.lang.Math.log(N3 + 1) + 1) / (java.lang.Math.log(N3 + 1) + 2);
-            return (k3 * (N3 / C2) + (1 - k3) * k2 * (N2 / C1) + (1 - k3) * (1 - k2) * (N1 / C0));
+            return (k3 * (N3 / C2) + ((1 - k3) * k2 * (N2 / C1)) + ((1 - k3) * (1 - k2) * (N1 / C0)));
         }
-
 
         /**
          * @param key     ⟨w<sub>1</sub>⟩
@@ -55,9 +56,9 @@ public class Job6CalcProb {
                     N2 = pairCount;
                 }
             }
-            double prob = calcProb(N1,N2,N3,C0,C1,C2);
-            outKey = new Text(String.format("%s %s %s %f",keyWords[0],keyWords[1],keyWords[2],prob));
-            outVal = new Text("-");
+            Double prob = calcProb(N1,N2,N3,C0,C1,C2);
+            outKey = new Text(String.format("%s %s %s",keyWords[0],keyWords[1],keyWords[2]));
+            outVal = new Text(String.format("%s %s %s %s %s %s %s",prob,N1,N2,N3,C0,C1,C2));
             context.write(outKey,outVal);
         }
 

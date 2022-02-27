@@ -17,20 +17,19 @@ public class Job7Sort {
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             String[] keyWords = key.toString().split(" ");
+            String[] valSplit = value.toString().split(" ");
             TrigramWithProb trip = new TrigramWithProb(keyWords[0],keyWords[1],keyWords[2],
-                    Double.parseDouble(keyWords[3]));
-            context.write(trip, value);
-
-
+                    Double.parseDouble(valSplit[0]));
+            context.write(trip, new Text(""));
         }
     }
 
-    public static class ReducerClass extends Reducer<TrigramWithProb, Text, Text, DoubleWritable> {
+    public static class ReducerClass extends Reducer<TrigramWithProb, Text, Text, Text> {
 
         @Override
         public void reduce(TrigramWithProb key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            Text trigram = new Text(key.getWord1().toString()+key.getWord2().toString()+key.getWord3().toString());
-            DoubleWritable prob = key.getProb();
+            Text trigram = new Text(key.toStringNoProb());
+            Text prob = new Text(String.valueOf(key.getProb()));
             context.write(trigram,prob);
         }
 
