@@ -72,7 +72,7 @@ public class Job5Zip3With4 {
                         if(valSplit.length == 2){ // inverted tri
                             outKey.set(String.format("%s %s %s",keySplit[2],keySplit[0],keySplit[1])); // invert back
                             outVal.set(String.format("%s %s %d %d %d",
-                                    keySplit[0],keySplit[1],singleWordCount,pairCount,Integer.parseInt(value.toString())));
+                                    keySplit[0],keySplit[1],singleWordCount,pairCount,Integer.parseInt(valSplit[1])));
                             context.write(outKey, outVal);
                         }
                     }

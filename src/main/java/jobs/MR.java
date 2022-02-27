@@ -32,7 +32,7 @@ public class MR {
         String gram2s3Url="s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/2gram/data";
         String gram3s3Url="s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/3gram/data";
 
-/*
+
         //-------------------------------------------------------------------------------------
         System.out.println("~configuring job 1~");
 
@@ -68,7 +68,7 @@ public class MR {
         System.out.println("C0's value is : " + conf.getLong("C0",-1));
         //-----------------------------------------------------------------------
 
-        //////////////////////////////////////////////////////////////////
+/*
         System.out.println("~configuring job 2~");
         Job job2 = Job.getInstance(conf, "2-Gram word count");
         job2.setJarByClass(Job2Count2Gram.class);
@@ -209,7 +209,7 @@ public class MR {
         job7.setInputFormatClass(KeyValueTextInputFormat.class);
         job7.setOutputFormatClass(TextOutputFormat.class);
         job7.setReducerClass(Job7Sort.ReducerClass.class);
-        job6.setPartitionerClass(Job7Sort.PartitionerClass.class);
+        job7.setPartitionerClass(Job7Sort.PartitionerClass.class);
 
         job7.setOutputKeyClass(Text.class);
         job7.setOutputValueClass(DoubleWritable.class);
