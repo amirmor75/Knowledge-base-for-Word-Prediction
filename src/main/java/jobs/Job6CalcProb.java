@@ -23,7 +23,11 @@ public class Job6CalcProb {
             return (k3 * (N3 / C2) + (1 - k3) * k2 * (N2 / C1) + (1 - k3) * (1 - k2) * (N1 / C0));
         }
 
-
+        /**
+         * @param key     ⟨w<sub>1</sub>⟩
+         * @param values   ⟨optional(w<sub>1</sub>,w<sub>2</sub>),sum⟩
+         * @param context we write the ( [w<sub>1</sub> , w<sub>2</sub>] , [w1<sub>count</sub>,w1w2<sub>count</sub>]) pair
+         */
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             Text outKey ;

@@ -84,7 +84,7 @@ public class Job4Zip1With2 {
         public int getPartition(Text key, Text value, int numPartitions) {
             String str = key.toString();
             int i = str.indexOf(" ");
-            return (( i==-1 ? str : str.substring(0, str.indexOf(" "))).hashCode() & Integer.MAX_VALUE) % numPartitions;
+            return (( i==-1 ? str : str.substring(0, i)).hashCode() & Integer.MAX_VALUE) % numPartitions;
             //return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }

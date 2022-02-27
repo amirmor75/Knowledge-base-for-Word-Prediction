@@ -23,22 +23,15 @@ public class Job5Zip3With4 {
          */
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-//            String[] keySplit = key.toString().split(" ");
-//            String[] values = value.toString().split(" ");
-//            if( keySplit.length == 3 ){ // the key is a Trigram
-//                outKey.set(String.format("%s %s",keySplit[0],keySplit[1]));
-//                outval.set(String.format("%s %s %s %d",keySplit[0],keySplit[1], keySplit[2],Integer.parseInt(values[1])));
-//                context.write(outKey, outval);
-//                outKey.set(String.format("%s %s",keySplit[1],keySplit[2]));
-//                context.write(outKey, outval);
-//            }
-//            else{ // the key is a pair of keySplit
-//                outKey.set(String.format("%s %s",keySplit[1],keySplit[2]));
-//                outval.set(String.format("%d %d", Integer.parseInt(values[1]),Integer.parseInt(values[2])));
-//                context.write(outKey, outval);
-//            }
+            String[] keySplit = key.toString().split(" ");
+            Text outKey = new Text();
+            Text outval = new Text();
+            if( keySplit.length == 3 ){ // the key is a Trigram so we send also inverted tri
+                outKey.set(String.format("%s %s %s",keySplit[1],keySplit[2],keySplit[0]));
+                outval.set(String.format("%s %s","w2w3w1",value.toString()));
+                context.write(outKey, outval);
+            }
             context.write(key, value);
-
 
         }
     }
@@ -58,6 +51,7 @@ public class Job5Zip3With4 {
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
             String[] keyWords = key.toString().split(" ");
+
             if(keyWords.length == 2 ){
                 String value = values.iterator().next().toString();
                 String[] valSplit = value.split(" ");
@@ -69,8 +63,14 @@ public class Job5Zip3With4 {
                     for (Text value : values) {
                         String[] valSplit = value.toString().split(" ");
                         String[] keySplit = key.toString().split(" ");
-                        if(valSplit.length== 1){
+                        if(valSplit.length == 1){ // regular tri
                             outKey.set(key);
+                            outVal.set(String.format("%s %s %d %d %d",
+                                    keySplit[0],keySplit[1],singleWordCount,pairCount,Integer.parseInt(value.toString())));
+                            context.write(outKey, outVal);
+                        }
+                        if(valSplit.length == 2){ // inverted tri
+                            outKey.set(String.format("%s %s %s",keySplit[2],keySplit[0],keySplit[1])); // invert back
                             outVal.set(String.format("%s %s %d %d %d",
                                     keySplit[0],keySplit[1],singleWordCount,pairCount,Integer.parseInt(value.toString())));
                             context.write(outKey, outVal);
@@ -85,8 +85,8 @@ public class Job5Zip3With4 {
         @Override
         public int getPartition(Text key, Text value, int numPartitions) {
             String str = key.toString();
-            int i = str.indexOf(" ", str.indexOf(" ") + 1);
-            return (( i==-1 ? str : str.substring(0, str.indexOf(" "))).hashCode() & Integer.MAX_VALUE) % numPartitions;
+            int i2 = str.indexOf(" ", str.indexOf(" ") + 1);
+            return (( i2==-1 ? str : str.substring(0, i2)).hashCode() & Integer.MAX_VALUE) % numPartitions;
 //            return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }
