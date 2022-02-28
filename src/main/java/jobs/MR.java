@@ -212,7 +212,7 @@ public class MR {
 
         job7.setOutputKeyClass(Text.class);
         job7.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job7, new Path("step6output"));
+        FileInputFormat.addInputPath(job7, new Path(workingDirBucketName+"step6output"));
         FileOutputFormat.setOutputPath(job7, new Path(workingDirBucketName + "finalOutput"));
 
         System.out.println("~Starting job 7~");

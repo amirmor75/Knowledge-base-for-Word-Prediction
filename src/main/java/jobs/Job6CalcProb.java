@@ -37,23 +37,24 @@ public class Job6CalcProb {
             int N1=-1,N2=-1,N3=-1,C1=-1,C2=-1 ;
             String[] keyWords = key.toString().split(" ");
             String triWord1 = keyWords[0],
-                    triWord2 = keyWords[1];
+                    triWord2 = keyWords[1],
+                    triWord3 = keyWords[2];
             for (Text value : values) {
                 String[] valSplit = value.toString().split(" ");
-                String word1 = valSplit[0];
-
-                int w1Count=Integer.parseInt(valSplit[2]),
+                String pairWord1 = valSplit[0];
+                String pairWord2 = valSplit[1];
+                int singleWordCount=Integer.parseInt(valSplit[2]),
                         pairCount=Integer.parseInt(valSplit[3]),
                         trigramCount= Integer.parseInt(valSplit[4])
                 ;
-                if(word1.equals(triWord1)){
-                    C2 = pairCount;
-                    C1 = w1Count;
-                    N3 = trigramCount;
+                if( pairWord1.equals(triWord1) & pairWord2.equals(triWord2) ){ //w1w2
+                    C1 = singleWordCount;   // w2 count
+                    C2 = pairCount;         // w1w2 count
+                    N3 = trigramCount;      // w1w2w3 count
                 }
-                if(word1.equals(triWord2)){
-                    N1 = w1Count;
-                    N2 = pairCount;
+                if( pairWord1.equals(triWord2) & pairWord2.equals(triWord3) ){ //w2w3
+                    N1 = singleWordCount;   // w3 count
+                    N2 = pairCount;         // w2w3 count
                 }
             }
             Double prob = calcProb(N1,N2,N3,C0,C1,C2);

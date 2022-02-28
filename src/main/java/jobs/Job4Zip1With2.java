@@ -13,7 +13,6 @@ public class Job4Zip1With2 {
     public static class Mapper1Gram extends Mapper<Text, Text, Text, Text> {
 
         private final Text outKey = new Text();
-        private final Text outVal = new Text();
 
         /**
          * @param key     w or [w<sub>1</sub>,w<sub>2</sub>]
@@ -38,8 +37,12 @@ public class Job4Zip1With2 {
 //                key.set(key+"אאאאא");
 //                context.write(key , value);
 //            }
-            context.write(key , value);
-
+            String[] keySplit = key.toString().split(" ");
+            outKey.set(key);
+            if(keySplit.length == 2) { // invert the pair so we get w2 count
+                outKey.set(String.format("%s %s", keySplit[1], keySplit[0]));
+            }
+            context.write(outKey , value);
 
         }
     }
@@ -58,20 +61,19 @@ public class Job4Zip1With2 {
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-            String[] keyWords = key.toString().split(" ");
-            if (keyWords.length==1)
+            String[] keySplit = key.toString().split(" ");
+            if (keySplit.length==1)
             {
                 singleWordCount= Integer.parseInt(values.iterator().next().toString());
             }
             else{
-                if (singleWordCount != -1 & keyWords.length==2 ) {
+                if (singleWordCount != -1 & keySplit.length==2 ) {
                     for (Text value : values) {
                         String[] valSplit = value.toString().split(" ");
-                        if (valSplit.length == 1) {
-                            outKey.set(key);
-                            outVal.set(String.format("%d %d", singleWordCount, Integer.parseInt(valSplit[0])));
-                            context.write(outKey, outVal);
-                        }
+                        outKey.set(String.format("%s %s", keySplit[1], keySplit[0]));// invert pair back
+                        outVal.set(String.format("%d %d", singleWordCount, Integer.parseInt(valSplit[0])));
+                        context.write(outKey, outVal);
+
                     }
                 }
             }
