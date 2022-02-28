@@ -3,7 +3,6 @@
 .idea
 src/main/java/META-INF
 /target
-/outputs
 # Log file
 *.log
 
