@@ -2,10 +2,9 @@ package jobs;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-import writables.TrigramWithProb;
+
 
 import java.io.IOException;
 
@@ -24,9 +23,9 @@ public class Job7Sort {
         }
 
     }
-    public static class PartitionerClass extends Partitioner<TrigramWithProb, Text> {
+    public static class PartitionerClass extends Partitioner<Text, Text> {
         @Override
-        public int getPartition(TrigramWithProb key, Text value, int numPartitions) {
+        public int getPartition(Text key, Text value, int numPartitions) {
             return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }

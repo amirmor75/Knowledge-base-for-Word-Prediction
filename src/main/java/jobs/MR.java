@@ -67,59 +67,59 @@ public class MR {
         System.out.println("C0's value is : " + conf.getLong("C0",-1));
         //-----------------------------------------------------------------------
 
-//        System.out.println("~configuring job 2~");
-//        Job job2 = Job.getInstance(conf, "2-Gram word count");
-//        job2.setJarByClass(Job2Count2Gram.class);
-//        job2.setInputFormatClass(SequenceFileInputFormat.class);
-//        job2.setOutputFormatClass(TextOutputFormat.class);
-//        job2.setMapperClass(Job2Count2Gram.MapperClass.class);
-//
-//        job2.setPartitionerClass(Job2Count2Gram.PartitionerClass.class);
-//        if (isWithCombiners)
-//            job2.setCombinerClass(Job2Count2Gram.ReducerClass.class);
-//        job2.setReducerClass(Job2Count2Gram.ReducerClass.class);
-//        job2.setPartitionerClass(Job2Count2Gram.PartitionerClass.class);
-//
-//        job2.setMapOutputKeyClass(Text.class);
-//        job2.setMapOutputValueClass(IntWritable.class);
-//        job2.setOutputKeyClass(Text.class);
-//        job2.setOutputValueClass(IntWritable.class);
-//        FileInputFormat.addInputPath(job2, new Path(gram2s3Url));
-//        FileOutputFormat.setOutputPath(job2, new Path(workingDirBucketName + "step2output"));
-//
-//        System.out.println("~Starting job 2~");
-//        System.out.println("Job 2 done with status: "
-//                + (retStat = job2.waitForCompletion(true)));
-//        if (!retStat)
-//            return ;
+        System.out.println("~configuring job 2~");
+        Job job2 = Job.getInstance(conf, "2-Gram word count");
+        job2.setJarByClass(Job2Count2Gram.class);
+        job2.setInputFormatClass(SequenceFileInputFormat.class);
+        job2.setOutputFormatClass(TextOutputFormat.class);
+        job2.setMapperClass(Job2Count2Gram.MapperClass.class);
+
+        job2.setPartitionerClass(Job2Count2Gram.PartitionerClass.class);
+        if (isWithCombiners)
+            job2.setCombinerClass(Job2Count2Gram.ReducerClass.class);
+        job2.setReducerClass(Job2Count2Gram.ReducerClass.class);
+        job2.setPartitionerClass(Job2Count2Gram.PartitionerClass.class);
+
+        job2.setMapOutputKeyClass(Text.class);
+        job2.setMapOutputValueClass(IntWritable.class);
+        job2.setOutputKeyClass(Text.class);
+        job2.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job2, new Path(gram2s3Url));
+        FileOutputFormat.setOutputPath(job2, new Path(workingDirBucketName + "step2output"));
+
+        System.out.println("~Starting job 2~");
+        System.out.println("Job 2 done with status: "
+                + (retStat = job2.waitForCompletion(true)));
+        if (!retStat)
+            return ;
 
         //--------------------------------------------------------------------------------------------------------------
 
-//        System.out.println("~configuring job 3~");
-//        Job job3 = Job.getInstance(conf, "3-Gram word count");
-//        job3.setJarByClass(Job3Count3Gram.class);
-//        job3.setInputFormatClass(SequenceFileInputFormat.class);
-//        job3.setOutputFormatClass(TextOutputFormat.class);
-//        job3.setMapperClass(Job3Count3Gram.MapperClass.class);
-//
-//        job3.setPartitionerClass(Job3Count3Gram.PartitionerClass.class);
-//        if (isWithCombiners)
-//            job3.setCombinerClass(Job3Count3Gram.ReducerClass.class);
-//        job3.setReducerClass(Job3Count3Gram.ReducerClass.class);
-//        job3.setMapOutputKeyClass(Text.class);
-//        job3.setMapOutputValueClass(IntWritable.class);
-//        job3.setOutputKeyClass(Text.class);
-//        job3.setOutputValueClass(IntWritable.class);
-//        job3.setPartitionerClass(Job3Count3Gram.PartitionerClass.class);
-//
-//        FileInputFormat.addInputPath(job3, new Path(gram3s3Url));
-//        FileOutputFormat.setOutputPath(job3, new Path(workingDirBucketName + "step3output"));
-//
-//        System.out.println("~Starting job 3~");
-//        System.out.println("Job 3 done with status: "
-//                + (retStat = job3.waitForCompletion(true)));
-//        if (!retStat)
-//            return ;
+        System.out.println("~configuring job 3~");
+        Job job3 = Job.getInstance(conf, "3-Gram word count");
+        job3.setJarByClass(Job3Count3Gram.class);
+        job3.setInputFormatClass(SequenceFileInputFormat.class);
+        job3.setOutputFormatClass(TextOutputFormat.class);
+        job3.setMapperClass(Job3Count3Gram.MapperClass.class);
+
+        job3.setPartitionerClass(Job3Count3Gram.PartitionerClass.class);
+        if (isWithCombiners)
+            job3.setCombinerClass(Job3Count3Gram.ReducerClass.class);
+        job3.setReducerClass(Job3Count3Gram.ReducerClass.class);
+        job3.setMapOutputKeyClass(Text.class);
+        job3.setMapOutputValueClass(IntWritable.class);
+        job3.setOutputKeyClass(Text.class);
+        job3.setOutputValueClass(IntWritable.class);
+        job3.setPartitionerClass(Job3Count3Gram.PartitionerClass.class);
+
+        FileInputFormat.addInputPath(job3, new Path(gram3s3Url));
+        FileOutputFormat.setOutputPath(job3, new Path(workingDirBucketName + "step3output"));
+
+        System.out.println("~Starting job 3~");
+        System.out.println("Job 3 done with status: "
+                + (retStat = job3.waitForCompletion(true)));
+        if (!retStat)
+            return ;
 
         //--------------------------------------------------------------------------------------------------------------
 

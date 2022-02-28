@@ -23,15 +23,17 @@ public class Main {
             properties.load(input);
         }
         final Collection<StepConfig> steps = new LinkedList<>();
-        steps.add(new StepConfig("EMR with combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("bucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
+        steps.add(new StepConfig("EMR without combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("jarBucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
+                .withArgs("s3://" + properties.getProperty("bucketName") + "/withoutCombiners/",
+                        Boolean.toString(false) // without combiners
+                )));
+
+        steps.add(new StepConfig("EMR with combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("jarBucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
                 .withArgs("s3://" + properties.getProperty("bucketName") + "/withCombiners/",
                         Boolean.toString(true) //with combiners
                         )));
 
-        steps.add(new StepConfig("EMR without combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("jarBucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
-                .withArgs("s3://" + properties.getProperty("bucketName") + "/withoutCombiners/",
-                        Boolean.toString(false) // without combiners
-                        )));
+
 
         System.out.println("Cluster created with ID: " + AmazonElasticMapReduceClientBuilder.standard()
                 .withRegion(Regions.US_EAST_1)
@@ -46,7 +48,7 @@ public class Main {
                         .withServiceRole("EMR_DefaultRole") // replace the default with a custom IAM service role if one is used
                         .withJobFlowRole("EMR_EC2_DefaultRole") // replace the default with a custom EMR role for the EC2 instance profile if one is used
                         .withInstances(new JobFlowInstancesConfig()
-                                .withInstanceCount(3)
+                                .withInstanceCount(4)
                                 .withKeepJobFlowAliveWhenNoSteps(false)
                                 .withMasterInstanceType(InstanceType.M4Large.toString())
                                 .withSlaveInstanceType(InstanceType.M4Large.toString())))
