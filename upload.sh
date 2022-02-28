@@ -5,6 +5,9 @@ aws s3 rm s3://amir-knowledge-base-for-word-prediction/withoutCombiners/step4out
 aws s3 rm s3://amir-knowledge-base-for-word-prediction/withoutCombiners/step5output --recursive
 aws s3 rm s3://amir-knowledge-base-for-word-prediction/withoutCombiners/step6output --recursive
 aws s3 rm s3://amir-knowledge-base-for-word-prediction/withoutCombiners/finaloutput --recursive
+
+
+
 aws s3 rm s3://amir-knowledge-base-for-word-prediction/logs --recursive
 
 aws s3 rm s3://amir-knowledge-base-for-word-prediction-jar --recursive

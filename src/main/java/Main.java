@@ -23,10 +23,10 @@ public class Main {
             properties.load(input);
         }
         final Collection<StepConfig> steps = new LinkedList<>();
-//        steps.add(new StepConfig("EMR with combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("bucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
-//                .withArgs("s3://" + properties.getProperty("bucketName") + "/withCombiners/",
-//                        Boolean.toString(true) //with combiners
-//                        )));
+        steps.add(new StepConfig("EMR with combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("bucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
+                .withArgs("s3://" + properties.getProperty("bucketName") + "/withCombiners/",
+                        Boolean.toString(true) //with combiners
+                        )));
 
         steps.add(new StepConfig("EMR without combiners", new HadoopJarStepConfig("s3://" + properties.getProperty("jarBucketName") + "/" + properties.getProperty("jarFileName") + ".jar")
                 .withArgs("s3://" + properties.getProperty("bucketName") + "/withoutCombiners/",

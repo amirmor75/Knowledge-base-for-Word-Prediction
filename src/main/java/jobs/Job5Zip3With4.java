@@ -21,6 +21,7 @@ public class Job5Zip3With4 {
          *              ([w<sub>2</sub> , w<sub>3</sub>],[w<sub>1</sub>,w<sub>2</sub>,w<sub>3</sub>,sum<sub>w1w2w3</sub>])
          *                   <br>/or/ ([w<sub>1</sub>,w<sub>2</sub>],[sum<sub>w1</sub>,sum<sub>w1w2</sub>])
          */
+        // inputKey is (w1w2, Cw2 Cw1w2) or (w1w2w3, cw1w2w3)
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             String[] keySplit = key.toString().split(" ");
@@ -87,7 +88,6 @@ public class Job5Zip3With4 {
             String str = key.toString();
             int i2 = str.indexOf(" ", str.indexOf(" ") + 1);
             return (( i2==-1 ? str : str.substring(0, i2)).hashCode() & Integer.MAX_VALUE) % numPartitions;
-//            return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
         }
     }
 

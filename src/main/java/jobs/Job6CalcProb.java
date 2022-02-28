@@ -58,8 +58,8 @@ public class Job6CalcProb {
                 }
             }
             Double prob = calcProb(N1,N2,N3,C0,C1,C2);
-            outKey = new Text(String.format("%s %s %s",keyWords[0],keyWords[1],keyWords[2]));
-            outVal = new Text(String.format("%s %s %s %s %s %s %s",prob,N1,N2,N3,C0,C1,C2));
+            outKey = new Text(String.format("%s %s %s %s",keyWords[0],keyWords[1],keyWords[2],prob));
+            outVal = new Text(String.format("%s %s %s %s %s %s",N1,N2,N3,C0,C1,C2));
             context.write(outKey,outVal);
         }
 

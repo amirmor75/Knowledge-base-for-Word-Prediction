@@ -41,6 +41,16 @@ public class Job1Count1Gram {
                 context.write(word, new IntWritable(Integer.parseInt(strings[2])));
         }
     }
+    public static class Combiner extends Reducer<Text,IntWritable,Text,IntWritable> {
+        @Override
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException,  InterruptedException {
+            int sum = 0;
+            for (IntWritable value : values) {
+                sum += value.get();
+            }
+            context.write(key, new IntWritable(sum));
+        }
+    }
 
     public static class ReducerClass extends Reducer<Text,IntWritable,Text,IntWritable> {
         private Counter counter;
