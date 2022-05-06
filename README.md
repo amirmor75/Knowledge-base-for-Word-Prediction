@@ -1,6 +1,4 @@
 # Knowledge-base for Word Prediction
-assignment 2 of distributed systems 1 course.
-Amir Mor and Shelly Talis.
 
 ## Description:
 In this project we generate a knowledge-base for Hebrew word-prediction system, based on
